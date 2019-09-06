@@ -74,16 +74,19 @@ comparePower3 n k= comparePower2 n k == comparePower1 n k
 testCase::[Integer]->[Integer]->[Integer]
 testCase xn xk = [power n k|n<-xn,k<-xk,comparePower3 n k]
 
+
+
+
 --Extra part F
 space=10
 string::[String]
 string=["n"++concat (replicate 9 " ")++"power"++concat (replicate 5 " ")++
    "power1"++concat (replicate 4 " ")++"power2"++concat (replicate 4 " ")]
 printOut::Integer->Integer->String
-printOut n k= show(k)++concat(replicate(10-length(show(k))) " ")++
-   show(power n k) ++concat (replicate(10-length(show(power n k))) " ")++
-   show(power1 n k)++concat (replicate(10-length(show(power1 n k))) " ")++
-   show(power2 n k)++concat (replicate(10-length(show(power2 n k))) " ")
+printOut n k= show(k)++concat(replicate(space-length(show(k))) " ")++
+   show(power n k) ++concat (replicate(space-length(show(power n k))) " ")++
+   show(power1 n k)++concat (replicate(space-length(show(power1 n k))) " ")++
+   show(power2 n k)++concat (replicate(space-length(show(power2 n k))) " ")
 table::Integer->Integer->IO()
 table n k = putStr(unlines (string ++ [printOut n ks|ks<-[0..k]]))
 
