@@ -28,7 +28,8 @@ aHand = [aCard1 , aCard2, aCard1] -- a Hand with two Cards, aCard1 and aCard2
 
 -- Task 2A
 displayCard :: Card -> String
-displayCard c=show(rank(c)) ++  " of " ++ show(suit(c)) 
+displayCard (Card (Numeric n) suit)=show(n) ++  " of " ++ show(suit) 
+displayCard c =show(rank(c)) ++  " of " ++ show(suit(c)) 
 --display hands by list comprehension
 display :: Hand -> String
 display h=unlines([displayCard c| c<-h])
