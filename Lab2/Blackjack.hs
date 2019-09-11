@@ -7,7 +7,6 @@ import Test.QuickCheck hiding (shuffle)
 --Task A1
 hand2 :: Hand
 hand2 = Card (Numeric 2) Hearts : (Card Jack Spades : [])
-
 sizeSteps :: [Int]
 sizeSteps = [ size hand2
             , size (Card (Numeric 2) Hearts : (Card Jack Spades : []))
@@ -22,7 +21,6 @@ aCard1 = Card Ace Hearts
 -- define another card here
 aCard2 :: Card
 aCard2 = Card (Numeric 10) Diamonds
-
 aHand :: Hand
 aHand = [aCard1 , aCard2, aCard1] -- a Hand with two Cards, aCard1 and aCard2
 
