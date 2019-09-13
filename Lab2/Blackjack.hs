@@ -71,13 +71,13 @@ value h
 gameOver :: Hand -> Bool
 --a function that, given a hand, checks if the player is bust. If larger than 21 is bust otherwise is not.
 gameOver h
-    |value h > 21 =False
-    |otherwise =True
+    |value h > 21 =True
+    |otherwise =False
 --a function that, given one hand for the guest and one for the bank (in that order), checks which player has won.
 winner :: Hand -> Hand -> Player
 winner guest bank 
-    |gameOver guest && value guest > value bank =Guest
-    |gameOver guest && value bank > 21 =Guest
+    |not (gameOver guest) && value guest > value bank =Guest
+    |not (gameOver guest) && gameOver bank =Guest
     |otherwise =Bank
 
 --Test Cases
@@ -106,3 +106,80 @@ gHand5 :: Hand
 gHand5 = [aCard2 , aCard2]
 bHand5 :: Hand
 bHand5 = [aCard2 , aCard2, aCard1, aCard1]
+
+--Task B1
+--a list of all possible ranks
+fullRank::[Rank]
+fullRank = [Jack,Queen,King,Ace] ++ [Numeric n| n <- [2..10]]                   
+--a list of all possible suit
+fullSuit::[Suit]
+fullSuit=[Hearts, Spades, Diamonds, Clubs ]
+--a list of all possible Deck
+fullDeck :: Deck
+fullDeck = [Card r s | s<-fullSuit, r<-fullRank]
+--test
+prop_size_fullDeck :: Bool
+prop_size_fullDeck = size fullDeck == 52
+
+--Task B2
+draw :: Deck -> Hand -> (Deck, Hand)
+draw [] hand=error "draw: The deck is empty."
+draw (d:deck) hand = (deck,d:hand)
+
+--Task B3
+playBank' :: Deck -> Hand -> Hand
+playBank' _ bankHand 
+    | (value bankHand) >= 16 = bankHand
+playBank' deck bankHand = playBank' deck' bankHand' 
+        where (deck', bankHand') = draw deck bankHand
+
+playBank :: Deck -> Hand
+playBank deck = playBank' deck []
+
+--Task B4
+--random Number return between 0 to 52
+doubleToInt :: Double -> Deck -> Int
+doubleToInt rand deck = floor(rand*(size deck)) 
+--remove n-th card from deck
+deckRemove :: Int -> Deck -> Deck
+-- deckRemove 0 deck = tail deck
+-- deckRemove n deck = head deck ++ (deckRemove (n-1) tail deck)
+deckRemove n deck = take (n) deck ++ drop (n+1) deck
+--help function for the shuffle
+takeCard :: Int -> Deck -> Card
+--takeCard n deck = (deck!!n, deckRemove n deck)
+takeCard n deck=deck!!n
+-- shuffle function to shuffle the card         
+shuffle :: [Double] -> Deck -> Deck
+shuffle [] deck = deck
+shuffle _ [] = []
+shuffle (rand:randlist) deck = (shuffle randlist remainingDeck) ++ [pickedCard]
+    where n = doubleToInt rand deck
+          pickedCard = takeCard n deck
+          remainingDeck = deckRemove n deck
+--takeCard (doubleToInt rand deck) deck ++ (shuffle randlist (deckRemove (doubleToInt rand deck) deck))
+
+--Task B5
+belongsTo :: Card -> Deck -> Bool
+c `belongsTo` []      = False
+c `belongsTo` (c':cs) = c == c' || c `belongsTo` cs
+prop_shuffle :: Card -> Deck -> Rand -> Bool
+prop_shuffle card deck (Rand randomlist) =
+    card `belongsTo` deck == card `belongsTo` shuffle randomlist deck
+prop_size_shuffle :: Rand -> Deck -> Bool
+prop_size_shuffle (Rand randomlist) deck = size (shuffle randomlist deck)==52
+
+--Task B6
+implementation = Interface
+  {  iFullDeck  = fullDeck
+  ,  iValue     = value
+  ,  iDisplay   = display
+  ,  iGameOver  = gameOver
+  ,  iWinner    = winner
+  ,  iDraw      = draw
+  ,  iPlayBank  = playBank
+  ,  iShuffle   = shuffle
+  }
+
+main :: IO ()
+main = runGame implementation
