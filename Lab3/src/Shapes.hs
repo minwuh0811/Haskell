@@ -161,8 +161,16 @@ padShapeTo (n,k) shape = padShape ((n-a),(k-b)) shape
 -- ** B01
 
 -- | Test if two shapes overlap
+rowsOverlap :: Row -> Row -> Bool
+rowsOverlap [] _ = False
+rowsOverlap _ [] = False 
+rowsOverlap (r1:squarelist1) (r2:squarelist2) = r1==r2 || rowsOverlap squarelist1 squarelist2
+--Test 
+--rowsOverlap ((rows (shiftShape (1,2) (allShapes!!1)))!!1) ((rows (padShape (1,2) (allShapes!!1)))!!1) -> true (passed)
 overlaps :: Shape -> Shape -> Bool
-s1 `overlaps` s2 = error "A11 overlaps undefined"
+overlaps (S []) _ = False
+overlaps  _ (S []) = False
+overlaps (S (r1:rowlist1)) (S (r2:rowlist2)) = rowsOverlap r1 r2 ||  overlaps (S (rowlist1)) (S (rowlist2)) 
 
 -- ** B02
 -- | zipShapeWith, like 'zipWith' for lists
