@@ -188,6 +188,25 @@ blackClashes s1 s2 = zipShapeWith clash s1 s2
 
 -- ** B03
 -- | Combine two shapes. The two shapes should not overlap.
--- The resulting shape will be big enough to fit both shapes.
-
+-- The resulting shape will be big enough to fit both shapes.                     
+finalShape :: Shape -> Shape -> Shape
+finalShape s1 s2 | h1>=h2 = padShapeTo (v1+v2,h1) s1
+                 | otherwise = padShapeTo (v1+v2,h2) s1
+                        where (v1,h1)=shapeSize s1
+                              (v2,h2)=shapeSize s2
+combine :: Shape -> Shape -> Shape
+combine s1 s2  = zipShapeWith clash newShape1 newShape2
+  where clash::Square -> Square -> Square
+        clash Nothing Nothing = Nothing
+        clash Nothing s = s
+        clash s Nothing = s     
+        (newShape1, newShape2) = finalShape s1 s2 
+          where finalShape :: Shape -> Shape -> (Shape,Shape)
+                finalShape s1 s2 | h1>=h2 = ((shiftShape (v2,0) s1), (padShapeTo (v1+v2,h1) s2))
+                                 | otherwise = ((shiftShape (v2,(h2-h1)) s1), (padShapeTo (v1+v2,h2) s2))
+                                      where (v1,h1)=shapeSize s1
+                                            (v2,h2)=shapeSize s2
+                     
+                                         
+        
         
