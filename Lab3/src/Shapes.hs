@@ -175,10 +175,19 @@ overlaps (S (r1:rowlist1)) (S (r2:rowlist2)) = rowsOverlap r1 r2 ||  overlaps (S
 -- ** B02
 -- | zipShapeWith, like 'zipWith' for lists
 zipShapeWith :: (Square->Square->Square) -> Shape -> Shape -> Shape
-zipShapeWith = error "A12 zipShapeWith undefined"
+zipShapeWith clash (S [x1]) (S (x2:s2)) = S [zipWith clash x1 x2]
+zipShapeWith clash (S (x1:s1)) (S [x2]) = S [zipWith clash x1 x2]
+zipShapeWith clash (S (x1:s1)) (S (x2:s2)) = S ( [zipWith clash x1 x2] ++ (rows (zipShapeWith clash (S s1) (S s2))))
+blackClashes :: Shape -> Shape -> Shape
+blackClashes s1 s2 = zipShapeWith clash s1 s2  
+  where clash :: Square -> Square -> Square 
+        clash Nothing Nothing = Nothing
+        clash Nothing s       = s
+        clash s       Nothing = s
+        clash (Just c1) (Just c2) = Just Black
 
 -- ** B03
 -- | Combine two shapes. The two shapes should not overlap.
 -- The resulting shape will be big enough to fit both shapes.
-combine :: Shape -> Shape -> Shape
-s1 `combine` s2 = error "A13 zipShapeWith undefined"
+
+        
