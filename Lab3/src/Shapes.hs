@@ -112,6 +112,11 @@ prop_Shape (S (r:rowlist))  = (length(r)>0) && (lengthCount (r:rowlist))
 -- | A random generator for colours
 rColour :: Gen Colour
 rColour = elements [Black,Red,Green,Yellow,Blue,Purple,Cyan,Grey]
+--another solution
+rColour1 :: Gen Colour
+rColour1 = elements colors
+   where colors = enumFrom Black
+      
 
 instance Arbitrary Colour where
   arbitrary = rColour
@@ -161,16 +166,29 @@ padShapeTo (n,k) shape = padShape ((n-a),(k-b)) shape
 -- ** B01
 
 -- | Test if two shapes overlap
+--rowsOverlap :: Row -> Row -> Bool
+--rowsOverlap [] _ = False
+--rowsOverlap _ [] = False 
+--rowsOverlap (r1:squarelist1) (r2:squarelist2) = clash r1 r2 || rowsOverlap squarelist1 squarelist2
+  --where clash :: Square -> Square -> Bool
+        --clash (Just c1) (Just c2) = True
+        --clash Nothing Nothing = False
+        --clash Nothing s       = False
+        --clash s       Nothing = False
+
 rowsOverlap :: Row -> Row -> Bool
-rowsOverlap [] _ = False
-rowsOverlap _ [] = False 
-rowsOverlap (r1:squarelist1) (r2:squarelist2) = r1==r2 || rowsOverlap squarelist1 squarelist2
+(rs) `rowsOverlap` (rs') = or $ zipWith sqOverlaps rs rs'  -- Vi vill att varje element(Square) i raden ska få en funktion callad på sig, slutligen vill vi utvärdera detta med or
+      where
+        sqOverlaps:: Square -> Square -> Bool
+        sqOverlaps r r' = not (isNothing r || isNothing r')       
 --Test 
 --rowsOverlap ((rows (shiftShape (1,2) (allShapes!!1)))!!1) ((rows (padShape (1,2) (allShapes!!1)))!!1) -> true (passed)
+--overlaps :: Shape -> Shape -> Bool
+--overlaps (S []) _ = False
+--overlaps  _ (S []) = False
+--overlaps (S (r1:rowlist1)) (S (r2:rowlist2)) = rowsOverlap r1 r2 ||  overlaps (S (rowlist1)) (S (rowlist2)) 
 overlaps :: Shape -> Shape -> Bool
-overlaps (S []) _ = False
-overlaps  _ (S []) = False
-overlaps (S (r1:rowlist1)) (S (r2:rowlist2)) = rowsOverlap r1 r2 ||  overlaps (S (rowlist1)) (S (rowlist2)) 
+(S rs1) `overlaps` (S rs2) = or $ zipWith rowsOverlap rs1 rs2
 
 -- ** B02
 -- | zipShapeWith, like 'zipWith' for lists
@@ -197,10 +215,11 @@ combine s1 s2  = zipShapeWith clash newShape1 newShape2
         clash s Nothing = s     
         (newShape1, newShape2) = finalShape s1 s2 
           where finalShape :: Shape -> Shape -> (Shape,Shape)
-                finalShape s1 s2 | h1>=h2 = ((shiftShape (v2,0) s1), (padShapeTo (v1+v2,h1) s2))
-                                 | otherwise = ((shiftShape (v2,(h2-h1)) s1), (padShapeTo (v1+v2,h2) s2))
+                finalShape s1 s2 = ((padShapeTo (v,h) s1), (padShapeTo (v,h) s2))
                                       where (v1,h1)=shapeSize s1
                                             (v2,h2)=shapeSize s2
+                                            v = max v1 v2
+                                            h = max h1 h2
                      
                                          
         
